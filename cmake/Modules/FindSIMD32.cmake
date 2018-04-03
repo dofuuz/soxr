@@ -15,7 +15,6 @@ elseif (CMAKE_C_COMPILER_ARCHITECTURE_ID MATCHES "^ARM"  # MSVC: target arch, no
     # AArch64
     " "
     # Gcc
-    "-mfpu=neon-vfpv4 -mcpu=cortex-a7"
     "-mfpu=neon       -mfloat-abi=hard"
     "-mfpu=neon       -mfloat-abi=softfp"
     "-mfpu=neon       -mfloat-abi=soft"
