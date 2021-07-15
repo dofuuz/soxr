@@ -31,7 +31,7 @@ SIMD_INLINE(void) vStorSum(float * a, v4_t b) {
   v4_t t = vAdd(_mm_movehl_ps(b, b), b);
   _mm_store_ss(a, vAdd(t, _mm_shuffle_ps(t,t,1)));}
 
-#elif defined __arm__
+#elif defined(__arm__) || defined(__aarch64__) || defined(__arm64__)
 
 #include <arm_neon.h>
 

@@ -9,8 +9,11 @@
 
 if (DEFINED SIMD32_C_FLAGS)
   set (TRIAL_C_FLAGS)
-elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "^arm")
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "^arm"
+        OR CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64")
   set (TRIAL_C_FLAGS
+    # AArch64
+    " "
     # Gcc
     "-mfpu=neon-vfpv4 -mcpu=cortex-a7"
     "-mfpu=neon       -mfloat-abi=hard"
