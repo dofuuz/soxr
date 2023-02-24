@@ -428,7 +428,7 @@ soxr_t soxr_create(
     p->io_spec.scale *= datatype_full_scale[p->io_spec.otype & 3] /
                         datatype_full_scale[p->io_spec.itype & 3];
 
-    p->seed = (unsigned long long)time(0) ^ (unsigned long long)(size_t)p;
+    p->seed = 0xc2ec33ef97a5ULL; /* Fixed dithering seed for deterministic int16 output */
 
 #if WITH_CR32 || WITH_CR32S || WITH_VR32
     if (0
