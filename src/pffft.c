@@ -1732,7 +1732,7 @@ void pffft_zconvolve_accumulate(PFFFT_Setup *s, const float *a, const float *b, 
   const v4sf * RESTRICT vb = (const v4sf*)b;
   v4sf * RESTRICT vab = (v4sf*)ab;
 
-#ifdef __arm__
+#if defined(__arm__) || defined(__aarch64__) || defined(__arm64__)
   __builtin_prefetch(va);
   __builtin_prefetch(vb);
   __builtin_prefetch(vab);
