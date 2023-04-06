@@ -4,7 +4,7 @@
 #if defined DITHER
 
 #define DITHERING + (1./32)*(int)(((ran1>>=3)&31)-((ran2>>=3)&31))
-#define DITHER_RAND (seed = 1664525ULL * seed + 1013904223ULL) >> 3
+#define DITHER_RAND (seed = 1664525ULL * (seed ^ *(unsigned int *)src) + 1013904223ULL) >> 3
 #define DITHER_VARS unsigned long long ran1 = DITHER_RAND, ran2 = DITHER_RAND
 #define SEED_ARG , unsigned long long * seed0
 #define SAVE_SEED *seed0 = seed
