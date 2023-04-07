@@ -154,7 +154,7 @@ test_big_endian (HAVE_BIGENDIAN)
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
   set (PROJECT_CXX_FLAGS "${PROJECT_CXX_FLAGS} -Wconversion -Wall -Wextra \
-      -pedantic -Wundef -Wpointer-arith -Wno-long-long")
+      -pedantic -Wundef -Wpointer-arith -Werror=implicit")
   if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
     set (PROJECT_CXX_FLAGS "${PROJECT_CXX_FLAGS} -Wno-keyword-macro")
   endif ()
@@ -163,7 +163,7 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
   endif ()
   # Can use std=c89, but gnu89 should give faster sinf, cosf, etc.:
   set (PROJECT_C_FLAGS "${PROJECT_CXX_FLAGS} \
-       -std=gnu89 -Wnested-externs -Wmissing-prototypes -Wstrict-prototypes")
+       -std=gnu99 -Wnested-externs -Wmissing-prototypes -Wstrict-prototypes")
   if (CMAKE_BUILD_TYPE STREQUAL "Release")
     set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -s") # strip
   endif ()

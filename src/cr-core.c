@@ -74,7 +74,7 @@ static void cubic_stage_fn(stage_t * p, fifo_t * output_fifo)
   #define DEFINED_AVX 0
 #endif
 
-#if defined __x86_64__ || defined _M_X64 || defined i386 || defined _M_IX86
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(i386) || defined(_M_IX86)
   #define DEFINED_X86 1
 #else
   #define DEFINED_X86 0

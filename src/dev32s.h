@@ -12,7 +12,7 @@
   #define vAlign __declspec(align(16))
 #endif
 
-#if defined __x86_64__ || defined _M_X64 || defined i386 || defined _M_IX86
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(i386) || defined(_M_IX86)
 
 #include <xmmintrin.h>
 
