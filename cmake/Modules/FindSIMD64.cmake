@@ -11,6 +11,7 @@ if (DEFINED SIMD64_C_FLAGS OR CMAKE_SYSTEM_PROCESSOR MATCHES "^arm")
   set (TRIAL_C_FLAGS)
 else ()
   set (TRIAL_C_FLAGS
+    " "
     "-mavx" # Gcc
     "/arch:AVX" # MSVC
   )

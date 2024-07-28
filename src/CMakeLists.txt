@@ -38,7 +38,7 @@ elseif (WITH_CR32S)
   endif ()
 endif ()
 
-set (SOURCES ${PROJECT_NAME}.c data-io)
+set (SOURCES ${PROJECT_NAME} data-io)
 
 if (WITH_CR32 OR WITH_CR32S OR WITH_CR64 OR WITH_CR64S)
   list (APPEND SOURCES dbesi0 filter fft4g64 cr)
@@ -59,7 +59,7 @@ endif ()
 if (WITH_CR32S)
   foreach (source cr32s ${RDFT32S} util32s)
     list (APPEND SOURCES ${source})
-    set_property (SOURCE ${source}
+    set_property (SOURCE ${source}.c
         APPEND_STRING PROPERTY COMPILE_FLAGS ${SIMD32_C_FLAGS})
   endforeach ()
 endif ()
@@ -67,16 +67,20 @@ endif ()
 if (WITH_CR64S)
   foreach (source cr64s pffft64s util64s)
     list (APPEND SOURCES ${source})
-    set_property (SOURCE ${source}
+    set_property (SOURCE ${source}.c
         APPEND_STRING PROPERTY COMPILE_FLAGS ${SIMD64_C_FLAGS})
   endforeach ()
 endif ()
 
+# Fix CMP0115 deprecation with explicit file extension
+foreach (source ${SOURCES})
+  list (APPEND SRC_C ${source}.c)
+endforeach ()
 
 
 # Libsoxr:
 
-add_library (${PROJECT_NAME} ${LIB_TYPE} ${SOURCES})
+add_library (${PROJECT_NAME} ${LIB_TYPE} ${SRC_C})
 target_link_libraries (${PROJECT_NAME} PRIVATE ${LIBS} ${LIBM_LIBRARIES})
 set_target_properties (${PROJECT_NAME} PROPERTIES
   VERSION "${SO_VERSION}"
@@ -100,7 +104,7 @@ if (WITH_LSR_BINDINGS)
   set (LSR ${PROJECT_NAME}-lsr)
   set (LSR_SO_VERSION 0.1.9)
   set (LSR_SO_VERSION_MAJOR 0)
-  add_library (${LSR} ${LIB_TYPE} ${LSR})
+  add_library (${LSR} ${LIB_TYPE} ${LSR}.c)
   target_link_libraries (${LSR} ${PROJECT_NAME})
   set_target_properties (${LSR} PROPERTIES
     VERSION "${LSR_SO_VERSION}"

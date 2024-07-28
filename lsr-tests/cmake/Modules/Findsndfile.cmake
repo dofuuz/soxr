@@ -18,6 +18,6 @@ find_library (SNDFILE_LIBRARIES NAMES sndfile)
 
 include (FindPackageHandleStandardArgs)
 find_package_handle_standard_args (
-  SNDFILE DEFAULT_MSG SNDFILE_LIBRARIES SNDFILE_INCLUDES)
+  sndfile DEFAULT_MSG SNDFILE_LIBRARIES SNDFILE_INCLUDES)
 
 mark_as_advanced (SNDFILE_LIBRARIES SNDFILE_INCLUDES)

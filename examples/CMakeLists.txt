@@ -21,7 +21,7 @@ endif ()
 
 foreach (fe ${SOURCES} ${LSR_SOURCES})
   get_filename_component (f ${fe} NAME_WE)
-  add_executable (${f} ${fe})
+  add_executable (${f} ${fe}.c)
   if (${f} STREQUAL "1a-lsr")
     target_link_libraries (${f} soxr-lsr)
   endif ()

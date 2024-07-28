@@ -25,7 +25,7 @@ check_include_files (sys/times.h HAVE_SYS_TIMES_H)
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 include_directories (${CMAKE_CURRENT_BINARY_DIR})
 
-add_library (tests_lib STATIC util calc_snr)
+add_library (tests_lib STATIC util.c calc_snr.c)
 
 link_libraries (tests_lib ${PROJECT_NAME}-lsr ${LIBM_LIBRARIES})
 
@@ -40,11 +40,11 @@ if (WITH_CR64 OR WITH_CR64S)
 endif ()
 
 foreach (test ${tests})
-  add_executable (${test} ${test})
+  add_executable (${test} ${test}.c)
   add_test (lsr-${test} ${BIN}${test})
   set_property (TEST lsr-${test} PROPERTY ENVIRONMENT "SOXR_LSR_STRICT=1")
 endforeach ()
 
-add_executable (multichan_throughput_test multichan_throughput_test)
-add_executable (throughput_test throughput_test )
-add_executable (sndfile-resample sndfile-resample)
+add_executable (multichan_throughput_test multichan_throughput_test.c)
+add_executable (throughput_test throughput_test.c)
+add_executable (sndfile-resample sndfile-resample.c)
