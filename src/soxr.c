@@ -252,6 +252,8 @@ soxr_io_spec_t soxr_io_spec(
     unsigned eax_, ebx_, ecx_, edx_;
     CPUID(1, eax_, ebx_, ecx_, edx_);
     return (edx_ & (SSE|SSE2)) != 0;
+  #elif defined __aarch64__ || defined __arm64__
+    return true;
   #elif defined AV_CPU_FLAG_NEON
     return !!(av_get_cpu_flags() & AV_CPU_FLAG_NEON);
   #else
