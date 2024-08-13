@@ -14,6 +14,7 @@
 #define HAVE_FENV_H 1
 #define HAVE_STDBOOL_H 1
 #define HAVE_STDINT_H 1
+#define HAVE_GETAUXVAL 0
 #define HAVE_LRINT 1
 #define HAVE_BIGENDIAN 0
 

@@ -134,7 +134,7 @@ if (WITH_AVFFT)
   endif ()
 endif ()
 
-if (WITH_AVFFT OR (CMAKE_SYSTEM_PROCESSOR MATCHES "^arm" AND SIMD32_FOUND AND WITH_CR32))
+if (WITH_AVFFT AND (CMAKE_SYSTEM_PROCESSOR MATCHES "^arm" AND SIMD32_FOUND AND WITH_CR32))
   find_package (LibAVUtil)
   if (AVUTIL_FOUND)
     include_directories (${AVUTIL_INCLUDE_DIRS})
@@ -146,6 +146,7 @@ check_function_exists (lrint HAVE_LRINT)
 check_include_files (fenv.h HAVE_FENV_H)
 check_include_files (stdbool.h HAVE_STDBOOL_H)
 check_include_files (stdint.h HAVE_STDINT_H)
+check_include_files (sys/auxv.h HAVE_GETAUXVAL)
 test_big_endian (HAVE_BIGENDIAN)
 
 

@@ -12,6 +12,9 @@
 
 #if AVUTIL_FOUND
   #include <libavutil/cpu.h>
+#elif HAVE_GETAUXVAL && defined(__arm__)
+  #include <sys/auxv.h>
+  #include <asm/hwcap.h>
 #endif
 
 
@@ -256,6 +259,8 @@ soxr_io_spec_t soxr_io_spec(
     return true;
   #elif defined AV_CPU_FLAG_NEON
     return !!(av_get_cpu_flags() & AV_CPU_FLAG_NEON);
+  #elif defined HWCAP_NEON
+    return !!(getauxval(AT_HWCAP) & HWCAP_NEON);
   #else
     return false;
   #endif

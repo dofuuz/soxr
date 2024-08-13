@@ -11,6 +11,7 @@
 #cmakedefine01 HAVE_FENV_H
 #cmakedefine01 HAVE_STDBOOL_H
 #cmakedefine01 HAVE_STDINT_H
+#cmakedefine01 HAVE_GETAUXVAL
 #cmakedefine01 HAVE_LRINT
 #cmakedefine01 HAVE_BIGENDIAN
 
