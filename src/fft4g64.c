@@ -7,11 +7,12 @@
 #include "soxr-config.h"
 
 #if WITH_CR64
-static void * null(void) {return 0;}
-static void nothing(void) {}
-static void forward (int length, void * setup, double * H) {lsx_safe_rdft(length,  1, H); (void)setup;}
-static void backward(int length, void * setup, double * H) {lsx_safe_rdft(length, -1, H); (void)setup;}
+static void * null(int length) {return 0; (void)length;}
+static void nothing(void * setup) {(void)setup;}
+static void forward (int length, void * setup, void * H, void * scratch) {lsx_safe_rdft(length,  1, (double*)H); (void)setup; (void)scratch;}
+static void backward(int length, void * setup, void * H, void * scratch) {lsx_safe_rdft(length, -1, (double*)H); (void)setup; (void)scratch;}
 static int multiplier(void) {return 2;}
+static void nothing2(int length, void * setup, void * H, void * scratch) {(void)length; (void)setup; (void)H; (void)scratch;}
 static int flags(void) {return 0;}
 
 typedef void (* fn_t)(void);
@@ -26,7 +27,7 @@ fn_t _soxr_rdft64_cb[] = {
   (fn_t)_soxr_ordered_convolve,
   (fn_t)_soxr_ordered_partial_convolve,
   (fn_t)multiplier,
-  (fn_t)nothing,
+  (fn_t)nothing2,
   (fn_t)malloc,
   (fn_t)calloc,
   (fn_t)free,

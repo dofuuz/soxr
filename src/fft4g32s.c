@@ -5,11 +5,12 @@
 #include "util32s.h"
 #include "rdft_t.h"
 
-static void * null(void) {return 0;}
-static void nothing(void) {}
-static void forward (int length, void * setup, float * H) {lsx_safe_rdft_f(length,  1, H); (void)setup;}
-static void backward(int length, void * setup, float * H) {lsx_safe_rdft_f(length, -1, H); (void)setup;}
+static void * null(int length) {return 0; (void)length;}
+static void nothing(void * setup) {(void)setup;}
+static void forward (int length, void * setup, void * H, void * scratch) {lsx_safe_rdft_f(length,  1, (float*)H); (void)setup; (void)scratch;}
+static void backward(int length, void * setup, void * H, void * scratch) {lsx_safe_rdft_f(length, -1, (float*)H); (void)setup; (void)scratch;}
 static int multiplier(void) {return 2;}
+static void nothing2(int length, void * setup, void * H, void * scratch) {(void)length; (void)setup; (void)H; (void)scratch;}
 static int flags(void) {return RDFT_IS_SIMD;}
 
 fn_t _soxr_rdft32s_cb[] = {
@@ -23,7 +24,7 @@ fn_t _soxr_rdft32s_cb[] = {
   (fn_t)ORDERED_CONVOLVE_SIMD,
   (fn_t)ORDERED_PARTIAL_CONVOLVE_SIMD,
   (fn_t)multiplier,
-  (fn_t)nothing,
+  (fn_t)nothing2,
   (fn_t)SIMD_ALIGNED_MALLOC,
   (fn_t)SIMD_ALIGNED_CALLOC,
   (fn_t)SIMD_ALIGNED_FREE,
