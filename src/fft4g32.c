@@ -9,10 +9,10 @@
 
 #if WITH_CR32
 #include "rdft_t.h"
-static void * null(int length) {return 0; (void)length;}
+static void * null(int length) {(void)length; return 0;}
 static void nothing(void * setup) {(void)setup;}
-static void forward(int length, void * setup, void * H, void * scratch) {lsx_safe_rdft_f(length, 1, (double * ) H); (void)setup; (void)scratch;}
-static void backward(int length, void * setup, void * H, void * scratch) {lsx_safe_rdft_f(length, -1, (double * ) H); (void)setup; (void)scratch;}
+static void forward(int length, void * setup, void * H, void * scratch) {(void)setup; (void)scratch; lsx_safe_rdft_f(length, 1, (double *)H);}
+static void backward(int length, void * setup, void * H, void * scratch) {(void)setup; (void)scratch; lsx_safe_rdft_f(length, -1, (double *)H);}
 static int multiplier(void) {return 2;}
 static void nothing2(int length, void * setup, void * H, void * scratch) {(void)length; (void)setup; (void)H; (void)scratch;}
 static int flags(void) {return 0;}
