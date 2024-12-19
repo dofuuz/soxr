@@ -9,11 +9,12 @@
 
 #if WITH_CR32
 #include "rdft_t.h"
-static void * null(void) {return 0;}
-static void forward (int length, void * setup, double * H) {lsx_safe_rdft_f(length,  1, H); (void)setup;}
-static void backward(int length, void * setup, double * H) {lsx_safe_rdft_f(length, -1, H); (void)setup;}
+static void * null(int length) {(void)length; return 0;}
+static void nothing(void * setup) {(void)setup;}
+static void forward(int length, void * setup, double * H, void * scratch) {(void)setup; (void)scratch; lsx_safe_rdft_f(length, 1, H);}
+static void backward(int length, void * setup, double * H, void * scratch) {(void)setup; (void)scratch; lsx_safe_rdft_f(length, -1, H);}
 static int multiplier(void) {return 2;}
-static void nothing(void) {}
+static void nothing2(int length, void * setup, double * H, void * scratch) {(void)length; (void)setup; (void)H; (void)scratch;}
 static int flags(void) {return 0;}
 
 fn_t _soxr_rdft32_cb[] = {
@@ -27,7 +28,7 @@ fn_t _soxr_rdft32_cb[] = {
   (fn_t)_soxr_ordered_convolve_f,
   (fn_t)_soxr_ordered_partial_convolve_f,
   (fn_t)multiplier,
-  (fn_t)nothing,
+  (fn_t)nothing2,
   (fn_t)malloc,
   (fn_t)calloc,
   (fn_t)free,
