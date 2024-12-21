@@ -8,9 +8,9 @@
 
 static void * forward_setup(int len) {return av_rdft_init((int)(log(len)/log(2)+.5),DFT_R2C);}
 static void * backward_setup(int len) {return av_rdft_init((int)(log(len)/log(2)+.5),IDFT_C2R);}
-static void rdft(int length, void * setup, float * h) {av_rdft_calc(setup, h); (void)length;}
+static void rdft(int length, void * setup, float * h, void * scratch) {av_rdft_calc(setup, h); (void)length; (void)scratch;}
 static int multiplier(void) {return 2;}
-static void nothing(void) {}
+static void nothing(int length, void * setup, void * H, void * scratch) {(void)length; (void)setup; (void)H; (void)scratch;}
 static int flags(void) {return RDFT_IS_SIMD;}
 
 fn_t _soxr_rdft32s_cb[] = {
