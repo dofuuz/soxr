@@ -34,3 +34,39 @@ jobs:
       with:
         name: ${{ matrix.os }}-${{ matrix.build_type }}
         path: ${{ matrix.build_type }}
+
+  build-avfft:
+    # Test WITH_AVFFT=ON
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: seanmiddleditch/gha-setup-ninja@v5
+
+    - name: Install libavcodec
+      run: sudo apt install libavcodec-dev
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ matrix.build_type }}
+        -G "Ninja"
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DWITH_AVFFT=ON
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: cmake --build ${{ matrix.build_type }} --config ${{ matrix.build_type }}
+
+    - name: Test
+      working-directory: ${{ matrix.build_type }}
+      run: ctest --build-config ${{ matrix.build_type }}
+
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: ${{ matrix.os }}-avfft-${{ matrix.build_type }}
+        path: ${{ matrix.build_type }}
