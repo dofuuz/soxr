@@ -4,11 +4,13 @@
 #if defined DITHER
 
 #define DITHERING + (1./32)*(int)(((ran1>>=3)&31)-((ran2>>=3)&31))
-#define DITHER_RAND (seed = 1664525ULL * (seed ^ *(unsigned int *)src) + 1013904223ULL) >> 3
+#define DITHER_RAND (seed = 1664525ULL * seed + 1013904223ULL) >> 3
 #define DITHER_VARS unsigned long long ran1 = DITHER_RAND, ran2 = DITHER_RAND
 #define SEED_ARG , unsigned long long * seed0
 #define SAVE_SEED *seed0 = seed
-#define COPY_SEED unsigned long long seed = *seed0;
+// salt lower 32 bits of seed with last sample
+#define COPY_SALT_SEED(SRC_PTR) unsigned long long seed = \
+  *seed0 ^ n ^ (union{FLOATX f; unsigned u;}){(SRC_PTR)[n-1]}.u
 #define COPY_SEED1 unsigned long long seed1 = seed
 #define PASS_SEED1 , &seed1
 #define PASS_SEED  , &seed
@@ -20,7 +22,7 @@
 #define DITHER_VARS
 #define SEED_ARG
 #define SAVE_SEED
-#define COPY_SEED
+#define COPY_SALT_SEED(SRC_PTR)
 #define COPY_SEED1
 #define PASS_SEED1
 #define PASS_SEED
@@ -36,7 +38,7 @@
 static void RINT_CLIP(RINT_T * const dest, FLOATX const * const src,
     unsigned stride, size_t i, size_t const n, size_t * const clips SEED_ARG)
 {
-  COPY_SEED
+  COPY_SALT_SEED(src);
   DITHER_VARS;
   for (; i < n; ++i) {
     FLOATD const d = src[i] DITHERING;
@@ -58,7 +60,7 @@ static size_t LSX_RINT_CLIP(void * * const dest0, FLOATX const * const src,
 {
   size_t i, clips = 0;
   RINT_T * dest = *dest0;
-  COPY_SEED
+  COPY_SALT_SEED(src);
 #if defined FE_INVALID && defined FPU_RINT
 #define _ RINT(dest[i], src[i] DITHERING); ++i
   for (i = 0; i < (n & ~15u);) {
@@ -99,7 +101,7 @@ static size_t LSX_RINT_CLIP_2(void * * dest0, FLOATX const * const * srcs,
   unsigned j;
   size_t i, clips = 0;
   RINT_T * dest = *dest0;
-  COPY_SEED
+  COPY_SALT_SEED(srcs[0]);
 #if defined FE_INVALID && defined FPU_RINT
 #define _ RINT(dest[stride * i], src[i] DITHERING); ++i
   for (j = 0; j < stride; ++j, ++dest) {
@@ -142,7 +144,7 @@ static size_t LSX_RINT_CLIP_2(void * * dest0, FLOATX const * const * srcs,
 #undef PASS_SEED
 #undef PASS_SEED1
 #undef COPY_SEED1
-#undef COPY_SEED
+#undef COPY_SALT_SEED
 #undef SAVE_SEED
 #undef SEED_ARG
 #undef DITHER_VARS
