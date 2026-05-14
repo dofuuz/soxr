@@ -8,9 +8,9 @@
 #define DITHER_VARS unsigned long long ran1 = DITHER_RAND, ran2 = DITHER_RAND
 #define SEED_ARG , unsigned long long * seed0
 #define SAVE_SEED *seed0 = seed
-// salt lower 32 bits of seed with last sample
+// salt lower 32 bits of seed with center sample
 #define COPY_SALT_SEED(SRC_PTR) unsigned long long seed = \
-  *seed0 ^ n ^ (union{FLOATX f; unsigned u;}){(SRC_PTR)[n-1]}.u
+  *seed0 ^ n ^ (n ? (union{FLOATX f; unsigned u;}){(SRC_PTR)[n/2]}.u : 0)
 #define COPY_SEED1 unsigned long long seed1 = seed
 #define PASS_SEED1 , &seed1
 #define PASS_SEED  , &seed
