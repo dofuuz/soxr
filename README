@@ -1,3 +1,20 @@
+This is a patched version of libsoxr, focused on bug fixes and build improvements.
+https://github.com/dofuuz/soxr
+
+Summary of Changes:
+* Fix builds (CMake >= 4.0, AArch64, ppc64le, WebAssembly)
+* Enable optimization on AArch64 (over 2x speed-up)
+* Fix the periodic 0s bug in dithering
+* Make int16 output deterministic for reproducibility
+
+Detailed Patch Notes:
+https://dofuuz.github.io/dsp/2026/05/22/libsoxr-patch-notes.html
+
+Original Project:
+https://sourceforge.net/projects/soxr/
+
+----
+
 SoX Resampler Library       Copyright (c) 2007-18 robs@users.sourceforge.net
 
 The SoX Resampler library `libsoxr' performs one-dimensional sample-rate

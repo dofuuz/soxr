@@ -435,7 +435,7 @@ soxr_t soxr_create(
     p->io_spec.scale *= datatype_full_scale[p->io_spec.otype & 3] /
                         datatype_full_scale[p->io_spec.itype & 3];
 
-    // deterministic dithering seed for reproducible int16 output
+    // Deterministic dithering seed for reproducible int16 output
     p->seed = num_channels ^ (union{double d; unsigned long long u;}){io_ratio}.u;
 
 #if WITH_CR32 || WITH_CR32S || WITH_VR32
