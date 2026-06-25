@@ -19,6 +19,7 @@ jobs:
         cmake -B ${{ matrix.build_type }}
         -G "Ninja"
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DBUILD_EXAMPLES=ON
         -S ${{ github.workspace }}
 
     - name: Build
@@ -52,6 +53,7 @@ jobs:
       run: >
         cmake -B ${{ matrix.build_type }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DBUILD_EXAMPLES=ON
         ${{ matrix.fft_flag }}
         -S ${{ github.workspace }}
 
