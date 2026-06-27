@@ -29,8 +29,8 @@ endmacro ()
 
 macro (add_cmp_test irate orate bits)
   set (name ${bits}-bit-perfect-${irate}-${orate})
-  add_test (NAME ${name} COMMAND ${CMAKE_COMMAND} -Dbits=${bits} -DBIN=${BIN}
-    -DEXAMPLES_BIN=${EXAMPLES_BIN} -DlenToSkip=${leader} -Dorate=${orate}
+  add_test (NAME ${name} COMMAND ${CMAKE_COMMAND} -Dbits=${bits} -DBIN_CMP=$<TARGET_FILE:vector-cmp>
+    -DEX_3=$<TARGET_FILE:3-options-input-fn> -DlenToSkip=${leader} -Dorate=${orate}
     -Dirate=${irate} -Dlen=${len} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmp-test.cmake)
   add_vector (${irate})
   add_vector (${orate})

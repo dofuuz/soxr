@@ -203,12 +203,10 @@ endif ()
 if (${BUILD_SHARED_LIBS} AND ${CMAKE_SYSTEM_NAME} STREQUAL Windows)
   # Allow exes to find dlls:
   set (BIN ${PROJECT_BINARY_DIR}/bin/)
-  set (EXAMPLES_BIN ${BIN})
   set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BIN})
   set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN})
 else ()
   set (BIN ./)
-  set (EXAMPLES_BIN ../examples/)
 endif ()
 
 set (LIB_TYPE STATIC)
