@@ -96,10 +96,24 @@
 /* define PFFFT_SIMD_DISABLE if you want to use scalar code instead of simd code */
 /*#define PFFFT_SIMD_DISABLE */
 
+/* select which SIMD intrinsics will be used */
+#if !defined(PFFFT_SIMD_DISABLE)
+#  if (defined(__ppc__) || defined(__ppc64__) || defined(__powerpc__) || defined(__powerpc64__)) \
+   && (defined(__VEC__) || defined(__ALTIVEC__))
+#    define PFFFT_SIMD_ALTIVEC
+#  elif defined(__ARM_NEON) || defined(__aarch64__) || defined(__arm64)  \
+   || defined(_M_ARM64) || defined(_M_ARM64EC) || defined(__wasm_simd128__)
+     // we test _M_ARM64EC before _M_X64 because when _M_ARM64EC is defined, the microsoft compiler also defines _M_X64
+#    define PFFFT_SIMD_NEON
+#  elif defined(__x86_64__) || defined(__SSE__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)
+#    define PFFFT_SIMD_SSE
+#   endif
+#endif // PFFFT_SIMD_DISABLE
+
 /*
    Altivec support macros
 */
-#if !defined(PFFFT_SIMD_DISABLE) && (defined(__ppc__) || defined(__ppc64__) || defined(__powerpc__) || defined(__powerpc64__))
+#ifdef PFFFT_SIMD_ALTIVEC
 #include <altivec.h>
 typedef vector float v4sf;
 #  define SIMD_SZ 4
@@ -127,12 +141,12 @@ inline v4sf ld_ps1(const float *p) { v4sf v=vec_lde(0,p); return vec_splat(vec_p
     x3 = vec_mergel(y1, y3);                    \
   }
 #  define VSWAPHL(a,b) vec_perm(a,b, (vector unsigned char){16,17,18,19,20,21,22,23,8,9,10,11,12,13,14,15})
-#  define VALIGNED(ptr) ((((long long)(ptr)) & 0xF) == 0)
+#  define VALIGNED(ptr) ((((size_t)(ptr)) & 0xF) == 0)
 
 /*
   SSE1 support macros
 */
-#elif !defined(PFFFT_SIMD_DISABLE) && (defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(i386) || defined(_M_IX86))
+#elif defined(PFFFT_SIMD_SSE)
 
 #  define SIMD_SZ 4 /* 4 floats by simd vector -- this is pretty much hardcoded in the preprocess/finalize functions anyway so you will have to work if you want to enable AVX with its 256-bit vectors. */
 
@@ -149,7 +163,7 @@ typedef __m128 v4sf;
 #  define UNINTERLEAVE2(in1, in2, out1, out2) { v4sf tmp__ = _mm_shuffle_ps(in1, in2, _MM_SHUFFLE(2,0,2,0)); out2 = _mm_shuffle_ps(in1, in2, _MM_SHUFFLE(3,1,3,1)); out1 = tmp__; }
 #  define VTRANSPOSE4(x0,x1,x2,x3) _MM_TRANSPOSE4_PS(x0,x1,x2,x3)
 #  define VSWAPHL(a,b) _mm_shuffle_ps(b, a, _MM_SHUFFLE(3,2,1,0))
-#  define VALIGNED(ptr) ((((long long)(ptr)) & 0xF) == 0)
+#  define VALIGNED(ptr) ((((size_t)(ptr)) & 0xF) == 0)
 
 #else
 #include "pffft-avx.h"
@@ -158,7 +172,7 @@ typedef __m128 v4sf;
 /*
   ARM NEON support macros
 */
-#elif !defined(PFFFT_SIMD_DISABLE) && (defined(__arm__) || defined(__aarch64__) || defined(__arm64__))
+#elif defined(PFFFT_SIMD_NEON)
 #  include <arm_neon.h>
 typedef float32x4_t v4sf;
 #  define SIMD_SZ 4
@@ -180,7 +194,7 @@ typedef float32x4_t v4sf;
 /* marginally faster version */
 /*#  define VTRANSPOSE4(x0,x1,x2,x3) { asm("vtrn.32 %q0, %q1;\n vtrn.32 %q2,%q3\n vswp %f0,%e2\n vswp %f1,%e3" : "+w"(x0), "+w"(x1), "+w"(x2), "+w"(x3)::); } */
 #  define VSWAPHL(a,b) vcombine_f32(vget_low_f32(b), vget_high_f32(a))
-#  define VALIGNED(ptr) ((((long long)(ptr)) & 0x3) == 0)
+#  define VALIGNED(ptr) ((((size_t)(ptr)) & 0x3) == 0)
 #else
 #  if !defined(PFFFT_SIMD_DISABLE)
 #    warning "building with simd disabled !\n";
@@ -202,7 +216,7 @@ typedef float v4sf;
 #  define VMADD(a,b,c) ((a)*(b)+(c))
 #  define VSUB(a,b) ((a)-(b))
 #  define LD_PS1(p) (p)
-#  define VALIGNED(ptr) ((((long long)(ptr)) & 0x3) == 0)
+#  define VALIGNED(ptr) ((((size_t)(ptr)) & 0x3) == 0)
 #endif
 
 /* shortcuts for complex multiplcations */
@@ -1733,7 +1747,7 @@ void pffft_zconvolve_accumulate(PFFFT_Setup *s, const float *a, const float *b, 
   const v4sf * RESTRICT vb = (const v4sf*)b;
   v4sf * RESTRICT vab = (v4sf*)ab;
 
-#if defined(__arm__) || defined(__aarch64__) || defined(__arm64__)
+#ifdef __arm__
   __builtin_prefetch(va);
   __builtin_prefetch(vb);
   __builtin_prefetch(vab);

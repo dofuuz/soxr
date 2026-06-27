@@ -11,6 +11,7 @@ macro (set_system_processor)
     if (NOT DEFINED CMAKE_SYSTEM_PROCESSOR)
       include (CheckCSourceCompiles)
       set (CPU_LINES
+        "#if defined __aarch64__ || defined _M_ARM64 /*\;arm64\;*/"
         "#if defined __x86_64__ || defined _M_X64  /*\;x86_64\;*/"
         "#if defined __i386__   || defined _M_IX86 /*\;x86_32\;*/"
         "#if defined __arm__    || defined _M_ARM  /*\;arm\;*/"
