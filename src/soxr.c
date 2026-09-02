@@ -400,7 +400,7 @@ soxr_t soxr_create(
   else if (io_spec && (io_spec->itype | io_spec->otype) >= SOXR_SPLIT * 2)
     error = "invalid io datatype(s)";
 
-  if (!error && !(p = calloc(sizeof(*p), 1))) error = "malloc failed";
+  if (!error && !(p = calloc(1, sizeof(*p)))) error = "malloc failed";
 
   if (p) {
     control_block_t * control_block;
@@ -538,9 +538,9 @@ static soxr_error_t initialise(soxr_t p)
   size_t shared_size, channel_size;
 
   resampler_sizes(&shared_size, &channel_size);
-  p->channel_ptrs = calloc(sizeof(*p->channel_ptrs), p->num_channels);
+  p->channel_ptrs = calloc(p->num_channels, sizeof(*p->channel_ptrs));
   p->shared = calloc(shared_size, 1);
-  p->resamplers = calloc(sizeof(*p->resamplers), p->num_channels);
+  p->resamplers = calloc(p->num_channels, sizeof(*p->resamplers));
   if (!p->shared || !p->channel_ptrs || !p->resamplers)
     return fatal_error(p, "malloc failed");
 
