@@ -62,8 +62,11 @@ void _soxr_deinterleave_f(float * * dest, /* Round/clipping not needed here */
 
 
 
+/* gcc has never implemented this pragma and warns that it is ignoring it;
+ * its default -ftrapping-math already gives the guarantee we want.  clang
+ * does implement it, and defines __GNUC__, so test for that first.  */
 #if defined FE_INVALID && defined FPU_RINT32 && defined __STDC_VERSION__
-  #if __STDC_VERSION__ >= 199901L
+  #if __STDC_VERSION__ >= 199901L && (!defined __GNUC__ || defined __clang__)
     #pragma STDC FENV_ACCESS ON
   #endif
 #endif
@@ -151,7 +154,7 @@ void _soxr_deinterleave_f(float * * dest, /* Round/clipping not needed here */
 #endif
 
 #if defined FE_INVALID && defined FPU_RINT32 && defined __STDC_VERSION__
-  #if __STDC_VERSION__ >= 199901L
+  #if __STDC_VERSION__ >= 199901L && (!defined __GNUC__ || defined __clang__)
     #pragma STDC FENV_ACCESS OFF
   #endif
 #endif
