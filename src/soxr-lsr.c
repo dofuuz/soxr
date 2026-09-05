@@ -11,6 +11,39 @@
 
 
 
+/* libsamplerate hands its callback (void *, float * *) and returns long;
+ * soxr wants (void *, soxr_in_t *, size_t) returning size_t.  The two are
+ * not compatible function types, so keep the caller-supplied one beside
+ * the resampler and reach it from a correctly typed shim.  */
+
+struct src_state {
+  soxr_t         soxr;
+  src_callback_t fn;
+  void *         fn_state;
+};
+
+
+
+static size_t lsr_input_fn(void * state, soxr_in_t * data, size_t len)
+{
+  SRC_STATE * p = state;
+  SRC_SAMPLE * buf = 0;
+  long done = p->fn(p->fn_state, &buf);
+
+  (void)len;                 /* Not part of the libsamplerate contract. */
+
+  /* A libsamplerate callback signals end-of-input by returning 0 and leaving
+   * the pointer alone; soxr says the same by leaving *data at the non-null
+   * value it presets.  Writing to it unconditionally would turn that into
+   * "input function reported failure".  */
+  if (done > 0)
+    *data = buf;
+
+  return done > 0? (size_t)done : 0;
+}
+
+
+
 SRC_STATE *src_new(SRC_SRCTYPE id, int channels, SRC_ERROR * error)
 {
   return src_callback_new(0, id, channels, error, 0);
@@ -24,43 +57,44 @@ SRC_ERROR src_process(SRC_STATE *p, SRC_DATA * io)
 
   if (!p || !io) return -1;
 
-  soxr_set_error(
-      p, soxr_set_io_ratio(p, 1/io->src_ratio, (size_t)io->output_frames));
+  soxr_set_error(p->soxr,
+      soxr_set_io_ratio(p->soxr, 1/io->src_ratio, (size_t)io->output_frames));
 
-  soxr_process(p, io->data_in,                                  /* hack: */
+  soxr_process(p->soxr, io->data_in,                            /* hack: */
       (size_t)(io->end_of_input? ~io->input_frames : io->input_frames),
       &idone, io->data_out, (size_t)io->output_frames, &odone);
 
   io->input_frames_used = (long)idone, io->output_frames_gen = (long)odone;
-  return -!!soxr_error(p);
+  return -!!soxr_error(p->soxr);
 }
 
 
 
 SRC_ERROR src_set_ratio(SRC_STATE * p, double oi_ratio)
 {
-  return -!!soxr_set_io_ratio(p, 1/oi_ratio, 0);
+  return p? -!!soxr_set_io_ratio(p->soxr, 1/oi_ratio, 0) : -1;
 }
 
 
 
 SRC_ERROR src_reset(SRC_STATE * p)
 {
-  return -!!soxr_clear(p);
+  return p? -!!soxr_clear(p->soxr) : -1;
 }
 
 
 
 SRC_ERROR src_error(SRC_STATE * p)
 {
-  return -!!soxr_error(p);
+  return p? -!!soxr_error(p->soxr) : -1;
 }
 
 
 
 SRC_STATE * src_delete(SRC_STATE * p)
 {
-  soxr_delete(p);
+  if (p)
+    soxr_delete(p->soxr), free(p);
   return 0;
 }
 
@@ -72,19 +106,26 @@ SRC_STATE *src_callback_new(src_callback_t fn,
   soxr_quality_spec_t q_spec = soxr_quality_spec(SOXR_LSR0Q + (unsigned)id, 0);
   char const * e = getenv("SOXR_LSR_NUM_THREADS");
   soxr_runtime_spec_t r_spec = soxr_runtime_spec(!(e && atoi(e) != 1));
-  soxr_error_t error;
-  soxr_t soxr = 0;
+  soxr_error_t error = "malloc failed";
+  SRC_STATE * state = calloc(1, sizeof(*state));
 
   assert (channels > 0);
-  soxr = soxr_create(0, 0, (unsigned)channels, &error, 0, &q_spec, &r_spec);
 
-  if (soxr)
-    error = soxr_set_input_fn(soxr, (soxr_input_fn_t)fn, p, 0);
+  if (state) {
+    state->fn = fn, state->fn_state = p;
+    state->soxr =
+        soxr_create(0, 0, (unsigned)channels, &error, 0, &q_spec, &r_spec);
+
+    if (!state->soxr)
+      free(state), state = 0;
+    else if (fn)
+      error = soxr_set_input_fn(state->soxr, lsr_input_fn, state, 0);
+  }
 
   if (error0)
     *error0 = -!!error;
 
-  return soxr;
+  return state;
 }
 
 
@@ -93,8 +134,9 @@ long src_callback_read(SRC_STATE *p, double oi_ratio, long olen, float * obuf)
 {
   if (!p || olen < 0) return -1;
 
-  soxr_set_error(p, soxr_set_io_ratio(p, 1/oi_ratio, (size_t)olen));
-  return (long)soxr_output(p, obuf, (size_t)olen);
+  soxr_set_error(p->soxr,
+      soxr_set_io_ratio(p->soxr, 1/oi_ratio, (size_t)olen));
+  return (long)soxr_output(p->soxr, obuf, (size_t)olen);
 }
 
 
