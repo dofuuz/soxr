@@ -117,12 +117,11 @@ int main(int n, char const * arg[])
     }
                                                        /* Resample in blocks: */
     for (i=0; i<NUM_ATTEMPTS; ++i) {
-      size_t itotal = 0, ototal = 0;
+      size_t ototal = 0;
       timerStart(DURATION_MSECS);
       do {
         size_t const ilen1 = odone < olen? ilen : 0;
         error = soxr_process(soxr, ibuf, ilen1, NULL, obuf, olen, &odone);
-        itotal += ilen1;
         ototal += odone;
       } while (!error && timerRunning());
       omax = max(omax, ototal);
