@@ -5,8 +5,6 @@
 #include "rint.h"
 #include "../examples/examples-common.h"
 
-#define k 1000
-
 #if defined _WIN32
   #define WIN32_LEAN_AND_MEAN
   #include <windows.h>
@@ -50,6 +48,7 @@
   #define timerRunning() (get_time(&tmp), \
       (tmp.tv_sec < stop.tv_sec || tmp.tv_frac < stop.tv_frac))
 #endif
+#define k 1000
 
 int main(int n, char const * arg[])
 {

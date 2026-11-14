@@ -55,7 +55,7 @@
     __asm fldenv status
     return 0;
   }
-#elif defined _MSC_VER && defined _M_X64
+#elif defined _MSC_VER && defined _M_X64 && !defined _M_ARM64EC
   #include <emmintrin.h>
   #include <float.h>
   #define FPU_RINT32
