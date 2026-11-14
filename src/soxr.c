@@ -475,7 +475,7 @@ soxr_t soxr_create(
 #endif
     memcpy(&p->control_block, control_block, sizeof(p->control_block));
 
-    if (p->num_channels && io_ratio!=0)
+    if (p->num_channels && (input_rate!=0 || output_rate!=0)) /* Both 0: set later */
       error = soxr_set_io_ratio(p, io_ratio, 0);
   }
   if (error)
@@ -582,7 +582,9 @@ soxr_error_t soxr_set_io_ratio(soxr_t p, double io_ratio, size_t slew_len)
   if (!p)                 return "invalid soxr_t pointer";
   if ((error = p->error)) return error;
   if (!p->num_channels)   return "must set # channels before O/I ratio";
-  if (io_ratio <= 0)      return "I/O ratio out-of-range";
+  /* Rejects NaN too. cr hangs below 2^-19, vr32 crashes above 2^31: */
+  if (!(4e-6 <= io_ratio && io_ratio <= 1e9)) return "I/O ratio out-of-range";
+  if (slew_len > 0x7fffffff) return "slew_len out-of-range"; /* vr32 uses int */
   if (!p->channel_ptrs) {
     p->io_ratio = io_ratio;
     return initialise(p);
