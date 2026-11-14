@@ -42,7 +42,7 @@ enum SRC_SRCTYPE_e {SRC_SINC_BEST_QUALITY, SRC_SINC_MEDIUM_QUALITY,
 typedef int     SRC_SRCTYPE;
 typedef int     SRC_ERROR;
 typedef long    (* src_callback_t)(void *, SRC_SAMPLE * *);
-typedef struct  soxr SRC_STATE;
+typedef struct  src_state SRC_STATE;
 typedef struct  SRC_DATA {
   SRC_SAMPLE    * data_in, * data_out;
   long          input_frames, output_frames;
