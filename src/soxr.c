@@ -4,7 +4,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "soxr.h"
 #include "data-io.h"
@@ -436,7 +435,8 @@ soxr_t soxr_create(
                         datatype_full_scale[p->io_spec.itype & 3];
 
     // Deterministic dithering seed for reproducible int16 output
-    p->seed = num_channels ^ (union{double d; unsigned long long u;}){io_ratio}.u;
+    p->seed = num_channels ^ F64_BITS(input_rate) ^ (F64_BITS(io_ratio) * 0x9E3779B97F4A7C15ULL);
+    p->seed = (p->seed ^ p->seed >> 32) * 0x9E3779B97F4A7C15ULL >> 32;   // mix bits
 
 #if WITH_CR32 || WITH_CR32S || WITH_VR32
     if (0
@@ -619,6 +619,7 @@ soxr_error_t soxr_clear(soxr_t p) /* TODO: this, properly. */
     p->q_spec = tmp.q_spec;
     p->io_spec = tmp.io_spec;
     p->num_channels = tmp.num_channels;
+    p->seed = tmp.seed;
     p->input_fn_state = tmp.input_fn_state;
     memcpy(p->control_block, tmp.control_block, sizeof(p->control_block));
     p->deinterleave = tmp.deinterleave;

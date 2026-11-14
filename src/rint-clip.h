@@ -8,9 +8,11 @@
 #define DITHER_VARS unsigned long long ran1 = DITHER_RAND, ran2 = DITHER_RAND
 #define SEED_ARG , unsigned long long * seed0
 #define SAVE_SEED *seed0 = seed
-// salt lower 32 bits of seed with center sample
-#define COPY_SALT_SEED(SRC_PTR) unsigned long long seed = \
-  *seed0 ^ n ^ (n ? (union{FLOATX f; unsigned u;}){(SRC_PTR)[n/2]}.u : 0)
+#define COPY_SEED unsigned long long seed = *seed0;
+// salt seed with center sample (as double: endian-independent; fold brings high word to low bits)
+#define COPY_SALT_SEED(SRC_PTR) \
+  unsigned long long mid = n ? F64_BITS((SRC_PTR)[n/2]) : 0; \
+  unsigned long long seed = *seed0 ^ n ^ mid ^ (mid >> 32)
 #define COPY_SEED1 unsigned long long seed1 = seed
 #define PASS_SEED1 , &seed1
 #define PASS_SEED  , &seed
@@ -22,6 +24,7 @@
 #define DITHER_VARS
 #define SEED_ARG
 #define SAVE_SEED
+#define COPY_SEED
 #define COPY_SALT_SEED(SRC_PTR)
 #define COPY_SEED1
 #define PASS_SEED1
@@ -38,7 +41,7 @@
 static void RINT_CLIP(RINT_T * const dest, FLOATX const * const src,
     unsigned stride, size_t i, size_t const n, size_t * const clips SEED_ARG)
 {
-  COPY_SALT_SEED(src);
+  COPY_SEED
   DITHER_VARS;
   for (; i < n; ++i) {
     FLOATD const d = src[i] DITHERING;
@@ -145,6 +148,7 @@ static size_t LSX_RINT_CLIP_2(void * * dest0, FLOATX const * const * srcs,
 #undef PASS_SEED1
 #undef COPY_SEED1
 #undef COPY_SALT_SEED
+#undef COPY_SEED
 #undef SAVE_SEED
 #undef SEED_ARG
 #undef DITHER_VARS

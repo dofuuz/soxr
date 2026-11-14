@@ -6,6 +6,8 @@
 
 #include "soxr.h"
 
+#define F64_BITS(x) ((union {double d; unsigned long long u;}){x}.u)
+
 void _soxr_deinterleave(
     double * * dest,
     soxr_datatype_t data_type,
