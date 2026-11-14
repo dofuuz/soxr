@@ -40,7 +40,8 @@ jobs:
       matrix:
         build_type: [Release]
         fft_flag: [-DWITH_AVFFT=ON, -DWITH_PFFFT=OFF]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    # libavcodec/avfft.h is removed in recent libavcodec
 
     steps:
     - uses: actions/checkout@v6
