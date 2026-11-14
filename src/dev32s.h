@@ -12,7 +12,7 @@
   #define vAlign __declspec(align(16))
 #endif
 
-#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(i386) || defined(_M_IX86)
+#if (defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(i386) || defined(_M_IX86)) && !defined(_M_ARM64EC)
 
 #include <xmmintrin.h>
 
@@ -31,7 +31,7 @@ SIMD_INLINE(void) vStorSum(float * a, v4_t b) {
   v4_t t = vAdd(_mm_movehl_ps(b, b), b);
   _mm_store_ss(a, vAdd(t, _mm_shuffle_ps(t,t,1)));}
 
-#elif defined(__arm__) || defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64)
+#elif defined(__arm__) || defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
 
 #include <arm_neon.h>
 

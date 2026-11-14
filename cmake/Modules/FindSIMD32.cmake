@@ -9,7 +9,8 @@
 
 if (DEFINED SIMD32_C_FLAGS)
   set (TRIAL_C_FLAGS)
-elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "ARM|arm|aarch64")
+elseif (CMAKE_C_COMPILER_ARCHITECTURE_ID MATCHES "^ARM"  # MSVC: target arch, not host
+        OR (NOT MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "ARM|arm|aarch64"))
   set (TRIAL_C_FLAGS
     # AArch64
     " "
