@@ -4,6 +4,7 @@
 /* Variable-rate resampling. */
 
 #include <assert.h>
+#include <limits.h>
 #include "math-wrap.h"
 #include <string.h>
 #include <stdlib.h>
@@ -421,8 +422,9 @@ static bool do_input_stage(rate_t * p, int stage_num, int sign, int min_stage_nu
   return true;
 }
 
-static int vr_process(rate_t * p, int olen0)
+static int vr_process(rate_t * p, size_t len)
 {
+  int const olen0 = (int)min(len, INT_MAX); /* fifo uses int */
   assert(p->num_stages > 0);
   if (p->default_io_ratio!=0)
     vr_set_io_ratio(p, p->default_io_ratio, 0);

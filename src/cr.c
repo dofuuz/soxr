@@ -5,6 +5,7 @@
 
 #include <math.h>
 #include <assert.h>
+#include <limits.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -512,8 +513,9 @@ static bool stage_process(stage_t * stage, bool flushing)
   return done && fifo_occupancy(fifo) < stage->input_size;
 }
 
-STATIC void _soxr_process(rate_t * p, size_t olen)
+STATIC void _soxr_process(rate_t * p, size_t olen0)
 {
+  size_t const olen = min(olen0, INT_MAX); /* fifo uses int */
   int const n = p->flushing? min(-(int)p->samples_out, (int)olen) : (int)olen;
   stage_t * stage = &p->stages[p->num_stages];
   fifo_t * fifo = &stage->fifo;
@@ -533,6 +535,7 @@ STATIC real * _soxr_input(rate_t * p, real const * samples, size_t n)
 STATIC real const * _soxr_output(rate_t * p, real * samples, size_t * n0)
 {
   fifo_t * fifo = &p->stages[p->num_stages].fifo;
+  *n0 = min(*n0, INT_MAX); /* fifo uses int */
   int n = p->flushing? min(-(int)p->samples_out, (int)*n0) : (int)*n0;
   p->samples_out += n = min(n, fifo_occupancy(fifo));
   return fifo_read(fifo, (int)(*n0 = (size_t)n), samples);
